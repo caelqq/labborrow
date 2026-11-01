@@ -1,0 +1,185 @@
+const EXTENSIONS = ['Jr.', 'Sr.', 'Other'];
+const OTHER_EXTENSIONS = ['I', 'II', 'III', 'IV', 'IX', 'X'];
+
+const hasEdgeSpace = (v) => v !== v.trim();
+const isTitleCase = (v) => /^[A-Z][a-z]*( [A-Z][a-z]*)*$/.test(v);
+
+function validateIdNumber(v) {
+    if (v === '') return 'ID Number is required.';
+    if (!/^\d{4}-\d{4}$/.test(v)) return 'ID Number must follow the format xxxx-xxxx.';
+    return '';
+}
+
+function validateName(v, label, required) {
+    if (v === '') return required ? `${label} is required.` : '';
+    if (v.includes('  ')) return 'Double space is not allowed.';
+    if (hasEdgeSpace(v)) return 'Spaces at the start or end are not allowed.';
+    if (/\d/.test(v)) return `Numbers are not allowed in ${label}.`;
+    if (/[^A-Za-z ]/.test(v)) return `Special characters are not allowed in ${label}.`;
+    if (v.length < 2 || v.length > 21) return `${label} must be 2 to 21 characters.`;
+    if (v === v.toUpperCase()) return 'Do not use all capital letters.';
+    if (/(.)\1\1/i.test(v)) return 'Three consecutive identical letters are not allowed.';
+    if (!isTitleCase(v)) {
+        if (/(^| )[a-z]/.test(v)) return 'First letter of your name must be capital.';
+        return 'Only the first letter of each word may be capital.';
+    }
+    return '';
+}
+
+function validateNameExtension(choice, other) {
+    if (choice === '') return '';
+    if (choice === 'Other') {
+        if (other === '') return 'Please type your name extension.';
+        if (!OTHER_EXTENSIONS.includes(other)) return 'Name extension must be I, II, III, IV, IX or X.';
+        return '';
+    }
+    if (!EXTENSIONS.includes(choice)) return 'Please select a valid name extension.';
+    return '';
+}
+
+function validateBirthdate(v) {
+    if (v === '') return 'Birthdate is required.';
+    const born = new Date(v + 'T00:00:00');
+    if (isNaN(born)) return 'Please enter a valid birthdate.';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (born > today) return 'Birthdate cannot be in the future.';
+    let age = today.getFullYear() - born.getFullYear();
+    const months = today.getMonth() - born.getMonth();
+    if (months < 0 || (months === 0 && today.getDate() < born.getDate())) age--;
+    if (age < 18) return 'You must be at least 18 years old to register.';
+    return '';
+}
+
+function validatePurok(v) {
+    if (v === '') return 'Purok / Street is required.';
+    if (v.includes('  ')) return 'Double space is not allowed.';
+    if (hasEdgeSpace(v)) return 'Spaces at the start or end are not allowed.';
+    if (/[^A-Za-z0-9 ]/.test(v)) return 'Special characters are not allowed in Purok / Street.';
+    if (v.length < 3 || v.length > 50) return 'Purok / Street must be 3 to 50 characters.';
+    return '';
+}
+
+function validateTitleCaseText(v, label) {
+    if (v === '') return `${label} is required.`;
+    if (v.includes('  ')) return 'Double space is not allowed.';
+    if (hasEdgeSpace(v)) return 'Spaces at the start or end are not allowed.';
+    if (/\d/.test(v)) return `Numbers are not allowed in ${label}.`;
+    if (/[^A-Za-z ]/.test(v)) return `Special characters are not allowed in ${label}.`;
+    if (v.length < 2 || v.length > 50) return `${label} must be 2 to 50 characters.`;
+    if (!isTitleCase(v)) {
+        if (/(^| )[a-z]/.test(v)) return `First letter of each word in ${label} must be capital.`;
+        return `Only the first letter of each word in ${label} may be capital.`;
+    }
+    return '';
+}
+
+function validateZip(v) {
+    if (v === '') return 'ZIP Code is required.';
+    if (!/^\d{4}$/.test(v)) return 'ZIP Code must be exactly 4 digits.';
+    return '';
+}
+
+function validateEmail(v) {
+    if (v === '') return 'Email is required.';
+    if (/\s/.test(v)) return 'Email must not contain spaces.';
+    if (v.length > 100 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Please enter a valid email address.';
+    return '';
+}
+
+function validateUsername(v) {
+    if (v === '') return 'Username is required.';
+    if (/[^A-Za-z0-9]/.test(v)) return 'Username may contain letters and digits only.';
+    if (!/^[A-Za-z]/.test(v)) return 'Username must start with a letter.';
+    if (v.length < 8 || v.length > 17) return 'Username must be 8 to 17 characters.';
+    return '';
+}
+
+function passwordStrength(v) {
+    const kinds = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((r) => r.test(v)).length;
+    if (kinds <= 1) return 'Weak';
+    return kinds === 4 ? 'Strong' : 'Medium';
+}
+
+function validatePassword(v) {
+    if (v === '') return 'Password is required.';
+    if (v.includes(' ')) return 'Password must not contain spaces.';
+    if (v.length < 9 || v.length > 64) return 'Password must be 9 to 64 characters.';
+    if (passwordStrength(v) === 'Weak') return 'Password is too weak. Mix uppercase, lowercase, numbers or symbols.';
+    return '';
+}
+
+function validatePassword2(p, p2) {
+    if (p2 === '') return 'Please re-enter your password.';
+    if (p !== p2) return 'Passwords do not match.';
+    return '';
+}
+
+const val = (id) => document.getElementById(id).value;
+
+const rules = {
+    id_number: () => validateIdNumber(val('id_number')),
+    first_name: () => validateName(val('first_name'), 'First Name', true),
+    middle_name: () => validateName(val('middle_name'), 'Middle Name', false),
+    family_name: () => validateName(val('family_name'), 'Family Name', true),
+    name_extension: () => validateNameExtension(val('name_extension'), val('name_extension_other')),
+    birthdate: () => validateBirthdate(val('birthdate')),
+    purok_street: () => validatePurok(val('purok_street')),
+    barangay: () => validateTitleCaseText(val('barangay'), 'Barangay'),
+    municipality: () => validateTitleCaseText(val('municipality'), 'Municipality / City'),
+    province: () => validateTitleCaseText(val('province'), 'Province'),
+    country: () => validateTitleCaseText(val('country'), 'Country'),
+    zip_code: () => validateZip(val('zip_code')),
+    email: () => validateEmail(val('email')),
+    username: () => validateUsername(val('username')),
+    password: () => validatePassword(val('password')),
+    password2: () => validatePassword2(val('password'), val('password2')),
+};
+
+// A field stays quiet until the user types in it or leaves it
+const touched = {};
+
+function show(id) {
+    const message = rules[id]();
+    document.getElementById(id).closest('.field').querySelector('.error').textContent = message;
+    return message;
+}
+
+Object.keys(rules).forEach((id) => {
+    const input = document.getElementById(id);
+    const liveEvent = input.tagName === 'SELECT' || input.type === 'date' ? 'change' : 'input';
+
+    input.addEventListener(liveEvent, () => {
+        if (touched[id] || input.value !== '') {
+            touched[id] = true;
+            show(id);
+        }
+        if (id === 'password' && touched.password2) {
+            show('password2');
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        touched[id] = true;
+        show(id);
+    });
+});
+
+document.getElementById('name_extension_other').addEventListener('input', () => {
+    touched.name_extension = true;
+    show('name_extension');
+});
+
+document.querySelector('form').addEventListener('submit', (event) => {
+    let firstBad = null;
+    Object.keys(rules).forEach((id) => {
+        touched[id] = true;
+        if (show(id) && !firstBad) {
+            firstBad = id;
+        }
+    });
+    if (firstBad) {
+        event.preventDefault();
+        document.getElementById(firstBad).focus();
+    }
+});
