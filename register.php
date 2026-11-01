@@ -38,10 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['province'] = validateTitleCaseText($_POST['province'] ?? '', 'Province');
         $errors['country'] = validateTitleCaseText($_POST['country'] ?? '', 'Country');
         $errors['zip_code'] = validateZip($_POST['zip_code'] ?? '');
+        $errors['course'] = validateChoice($_POST['course'] ?? '', $courses, 'Course');
+        $errors['year_level'] = validateChoice($_POST['year_level'] ?? '', $yearLevels, 'Year level');
+        $errors['contact_number'] = validateContact($_POST['contact_number'] ?? '');
+        $errors['guardian_name'] = validateGuardian($_POST['guardian_name'] ?? '');
         $errors['email'] = validateEmail($_POST['email'] ?? '');
         $errors['username'] = validateUsername($_POST['username'] ?? '');
         $errors['password'] = validatePassword($_POST['password'] ?? '');
         $errors['password2'] = validatePassword2($_POST['password'] ?? '', $_POST['password2'] ?? '');
+        foreach ($securityQuestions as $no => $question) {
+            $errors['answer_' . $no] = validateAnswer($_POST['answer_' . $no] ?? '');
+        }
+        $errors['consent'] = validateConsent($_POST['consent'] ?? '');
 
         $errors = array_filter($errors);
         if (!$errors) {
@@ -76,7 +84,7 @@ require 'php/header.php';
     <div class="form-error"><?= e($formError) ?></div>
 <?php endif; ?>
 <?php if ($success): ?>
-    <div class="form-success">All checked fields are valid. Saving to the database comes in a later step.</div>
+    <div class="form-success">All fields are valid. Saving to the database comes in a later step.</div>
 <?php endif; ?>
 
 <form method="post" action="register.php" novalidate>
@@ -293,7 +301,7 @@ require 'php/header.php';
 
     <section class="form-section consent-box">
         <div class="consent">
-            <input type="checkbox" id="consent" name="consent" value="1">
+            <input type="checkbox" id="consent" name="consent" value="1" <?= !empty($old['consent']) ? 'checked' : '' ?>>
             <label for="consent">I have read the <a href="privacy.php" target="_blank" rel="noopener">Privacy Notice</a> and agree to the collection and processing of my personal data in accordance with the Data Privacy Act of 2012 (RA 10173). <span class="required">*</span></label>
         </div>
         <div class="error"><?= err('consent') ?></div>

@@ -1,5 +1,7 @@
 const EXTENSIONS = ['Jr.', 'Sr.', 'Other'];
 const OTHER_EXTENSIONS = ['I', 'II', 'III', 'IV', 'IX', 'X'];
+const COURSES = ['BSIT', 'BSCS', 'BSCpE', 'BSECE', 'BSEd'];
+const YEAR_LEVELS = ['1st', '2nd', '3rd', '4th'];
 
 const hasEdgeSpace = (v) => v !== v.trim();
 const isTitleCase = (v) => /^[A-Z][a-z]*( [A-Z][a-z]*)*$/.test(v);
@@ -80,6 +82,32 @@ function validateZip(v) {
     return '';
 }
 
+function validateChoice(v, allowed, label) {
+    if (v === '') return `${label} is required.`;
+    if (!allowed.includes(v)) return `Please select a valid ${label.toLowerCase()}.`;
+    return '';
+}
+
+function validateContact(v) {
+    if (v === '') return 'Contact Number is required.';
+    if (!/^09\d{9}$/.test(v)) return 'Contact number must be 11 digits and start with 09.';
+    return '';
+}
+
+function validateGuardian(v) {
+    if (v === '') return '';
+    return validateTitleCaseText(v, 'Guardian Name');
+}
+
+function validateAnswer(v) {
+    if (v === '') return 'Answer is required.';
+    if (v.includes('  ')) return 'Double space is not allowed.';
+    if (hasEdgeSpace(v)) return 'Spaces at the start or end are not allowed.';
+    if (/[^A-Za-z ]/.test(v)) return 'Answer may contain letters and spaces only.';
+    if (v.length < 2 || v.length > 50) return 'Answer must be 2 to 50 characters.';
+    return '';
+}
+
 function validateEmail(v) {
     if (v === '') return 'Email is required.';
     if (/\s/.test(v)) return 'Email must not contain spaces.';
@@ -130,10 +158,18 @@ const rules = {
     province: () => validateTitleCaseText(val('province'), 'Province'),
     country: () => validateTitleCaseText(val('country'), 'Country'),
     zip_code: () => validateZip(val('zip_code')),
+    course: () => validateChoice(val('course'), COURSES, 'Course'),
+    year_level: () => validateChoice(val('year_level'), YEAR_LEVELS, 'Year level'),
+    contact_number: () => validateContact(val('contact_number')),
+    guardian_name: () => validateGuardian(val('guardian_name')),
     email: () => validateEmail(val('email')),
     username: () => validateUsername(val('username')),
     password: () => validatePassword(val('password')),
     password2: () => validatePassword2(val('password'), val('password2')),
+    answer_2: () => validateAnswer(val('answer_2')),
+    answer_5: () => validateAnswer(val('answer_5')),
+    answer_7: () => validateAnswer(val('answer_7')),
+    consent: () => (document.getElementById('consent').checked ? '' : 'You must agree to the Privacy Notice to register.'),
 };
 
 // A field stays quiet until the user types in it or leaves it
@@ -141,13 +177,15 @@ const touched = {};
 
 function show(id) {
     const message = rules[id]();
-    document.getElementById(id).closest('.field').querySelector('.error').textContent = message;
+    const box = document.getElementById(id).closest('.field') || document.getElementById(id).closest('.consent-box');
+    box.querySelector('.error').textContent = message;
     return message;
 }
 
 Object.keys(rules).forEach((id) => {
     const input = document.getElementById(id);
-    const liveEvent = input.tagName === 'SELECT' || input.type === 'date' ? 'change' : 'input';
+    const isChange = input.tagName === 'SELECT' || input.type === 'date' || input.type === 'checkbox';
+    const liveEvent = isChange ? 'change' : 'input';
 
     input.addEventListener(liveEvent, () => {
         if (touched[id] || input.value !== '') {
