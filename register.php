@@ -31,6 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $extensions
         );
         $errors['birthdate'] = validateBirthdate(trim($_POST['birthdate'] ?? ''));
+        $errors['purok_street'] = validatePurok(trim($_POST['purok_street'] ?? ''));
+        $errors['barangay'] = validateTitleCaseText(trim($_POST['barangay'] ?? ''), 'Barangay');
+        $errors['municipality'] = validateTitleCaseText(trim($_POST['municipality'] ?? ''), 'Municipality / City');
+        $errors['province'] = validateTitleCaseText(trim($_POST['province'] ?? ''), 'Province');
+        $errors['country'] = validateTitleCaseText(trim($_POST['country'] ?? ''), 'Country');
+        $errors['zip_code'] = validateZip(trim($_POST['zip_code'] ?? ''));
 
         $errors = array_filter($errors);
         if (!$errors) {

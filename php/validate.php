@@ -87,3 +87,55 @@ function validateNameExtension($choice, $other, $allowed) {
     }
     return '';
 }
+
+function validatePurok($value) {
+    if ($value === '') {
+        return 'Purok / Street is required.';
+    }
+    if (strpos($value, '  ') !== false) {
+        return 'Double space is not allowed.';
+    }
+    if (preg_match('/[^A-Za-z0-9 ]/', $value)) {
+        return 'Special characters are not allowed in Purok / Street.';
+    }
+    if (strlen($value) < 3 || strlen($value) > 50) {
+        return 'Purok / Street must be 3 to 50 characters.';
+    }
+    return '';
+}
+
+// Used for Barangay, Municipality / City, Province and Country
+function validateTitleCaseText($value, $label) {
+    if ($value === '') {
+        return "$label is required.";
+    }
+    if (strpos($value, '  ') !== false) {
+        return 'Double space is not allowed.';
+    }
+    if (preg_match('/\d/', $value)) {
+        return "Numbers are not allowed in $label.";
+    }
+    if (preg_match('/[^A-Za-z ]/', $value)) {
+        return "Special characters are not allowed in $label.";
+    }
+    if (strlen($value) < 2 || strlen($value) > 50) {
+        return "$label must be 2 to 50 characters.";
+    }
+    if (!preg_match('/^[A-Z][a-z]*( [A-Z][a-z]*)*$/', $value)) {
+        if (preg_match('/(^| )[a-z]/', $value)) {
+            return "First letter of each word in $label must be capital.";
+        }
+        return "Only the first letter of each word in $label may be capital.";
+    }
+    return '';
+}
+
+function validateZip($value) {
+    if ($value === '') {
+        return 'ZIP Code is required.';
+    }
+    if (!preg_match('/^\d{4}$/', $value)) {
+        return 'ZIP Code must be exactly 4 digits.';
+    }
+    return '';
+}
