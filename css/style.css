@@ -835,3 +835,7 @@ select {
     border: 1px solid #2ea05a;
     color: #2ea05a;
 }
+
+.error.ok {
+    color: #2ea05a;
+}

@@ -145,6 +145,11 @@ function validatePassword2(p, p2) {
 
 const val = (id) => document.getElementById(id).value;
 
+// Usernames the server already told us about, so we do not ask twice
+const takenNames = new Set();
+const freeNames = new Set();
+let checkTimer;
+
 const rules = {
     id_number: () => validateIdNumber(val('id_number')),
     first_name: () => validateName(val('first_name'), 'First Name', true),
@@ -163,7 +168,7 @@ const rules = {
     contact_number: () => validateContact(val('contact_number')),
     guardian_name: () => validateGuardian(val('guardian_name')),
     email: () => validateEmail(val('email')),
-    username: () => validateUsername(val('username')),
+    username: () => validateUsername(val('username')) || (takenNames.has(val('username')) ? 'This username is already taken.' : ''),
     password: () => validatePassword(val('password')),
     password2: () => validatePassword2(val('password'), val('password2')),
     answer_2: () => validateAnswer(val('answer_2')),
@@ -175,10 +180,14 @@ const rules = {
 // A field stays quiet until the user types in it or leaves it
 const touched = {};
 
+// The green "available" text uses the same box as errors, but is never returned as an error
 function show(id) {
     const message = rules[id]();
     const box = document.getElementById(id).closest('.field') || document.getElementById(id).closest('.consent-box');
-    box.querySelector('.error').textContent = message;
+    const target = box.querySelector('.error');
+    const isFree = id === 'username' && message === '' && freeNames.has(val('username'));
+    target.textContent = isFree ? 'Username is available.' : message;
+    target.classList.toggle('ok', isFree);
     return message;
 }
 
@@ -206,6 +215,24 @@ Object.keys(rules).forEach((id) => {
 document.getElementById('name_extension_other').addEventListener('input', () => {
     touched.name_extension = true;
     show('name_extension');
+});
+
+async function checkUsername(name) {
+    try {
+        const response = await fetch('php/check_username.php?username=' + encodeURIComponent(name));
+        const data = await response.json();
+        // Ignore the answer if the user has already typed something else
+        if (val('username') !== name) return;
+        (data.taken ? takenNames : freeNames).add(name);
+        show('username');
+    } catch (e) {}
+}
+
+document.getElementById('username').addEventListener('input', () => {
+    clearTimeout(checkTimer);
+    const name = val('username');
+    if (validateUsername(name) !== '' || takenNames.has(name) || freeNames.has(name)) return;
+    checkTimer = setTimeout(() => checkUsername(name), 400);
 });
 
 document.querySelector('form').addEventListener('submit', (event) => {
