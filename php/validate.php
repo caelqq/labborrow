@@ -2,6 +2,10 @@
 define('NAME_MIN', 2);
 define('NAME_MAX', 21);
 
+function hasEdgeSpace($value) {
+    return $value !== trim($value);
+}
+
 function validateIdNumber($value) {
     if ($value === '') {
         return 'ID Number is required.';
@@ -19,6 +23,9 @@ function validateName($value, $label, $required) {
     }
     if (strpos($value, '  ') !== false) {
         return 'Double space is not allowed.';
+    }
+    if (hasEdgeSpace($value)) {
+        return 'Spaces at the start or end are not allowed.';
     }
     if (preg_match('/\d/', $value)) {
         return "Numbers are not allowed in $label.";
@@ -95,6 +102,9 @@ function validatePurok($value) {
     if (strpos($value, '  ') !== false) {
         return 'Double space is not allowed.';
     }
+    if (hasEdgeSpace($value)) {
+        return 'Spaces at the start or end are not allowed.';
+    }
     if (preg_match('/[^A-Za-z0-9 ]/', $value)) {
         return 'Special characters are not allowed in Purok / Street.';
     }
@@ -111,6 +121,9 @@ function validateTitleCaseText($value, $label) {
     }
     if (strpos($value, '  ') !== false) {
         return 'Double space is not allowed.';
+    }
+    if (hasEdgeSpace($value)) {
+        return 'Spaces at the start or end are not allowed.';
     }
     if (preg_match('/\d/', $value)) {
         return "Numbers are not allowed in $label.";
@@ -136,6 +149,75 @@ function validateZip($value) {
     }
     if (!preg_match('/^\d{4}$/', $value)) {
         return 'ZIP Code must be exactly 4 digits.';
+    }
+    return '';
+}
+
+function validateEmail($value) {
+    if ($value === '') {
+        return 'Email is required.';
+    }
+    if (preg_match('/\s/', $value)) {
+        return 'Email must not contain spaces.';
+    }
+    if (strlen($value) > 100 || !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        return 'Please enter a valid email address.';
+    }
+    return '';
+}
+
+function validateUsername($value) {
+    if ($value === '') {
+        return 'Username is required.';
+    }
+    if (preg_match('/[^A-Za-z0-9]/', $value)) {
+        return 'Username may contain letters and digits only.';
+    }
+    if (!preg_match('/^[A-Za-z]/', $value)) {
+        return 'Username must start with a letter.';
+    }
+    if (strlen($value) < 8 || strlen($value) > 17) {
+        return 'Username must be 8 to 17 characters.';
+    }
+    return '';
+}
+
+// Counts the kinds of characters used: lowercase, uppercase, digit, symbol
+function passwordStrength($value) {
+    $kinds = 0;
+    foreach (['/[a-z]/', '/[A-Z]/', '/[0-9]/', '/[^A-Za-z0-9]/'] as $pattern) {
+        if (preg_match($pattern, $value)) {
+            $kinds++;
+        }
+    }
+    if ($kinds <= 1) {
+        return 'Weak';
+    }
+    return $kinds == 4 ? 'Strong' : 'Medium';
+}
+
+function validatePassword($value) {
+    if ($value === '') {
+        return 'Password is required.';
+    }
+    if (strpos($value, ' ') !== false) {
+        return 'Password must not contain spaces.';
+    }
+    if (strlen($value) < 9 || strlen($value) > 64) {
+        return 'Password must be 9 to 64 characters.';
+    }
+    if (passwordStrength($value) === 'Weak') {
+        return 'Password is too weak. Mix uppercase, lowercase, numbers or symbols.';
+    }
+    return '';
+}
+
+function validatePassword2($password, $password2) {
+    if ($password2 === '') {
+        return 'Please re-enter your password.';
+    }
+    if ($password !== $password2) {
+        return 'Passwords do not match.';
     }
     return '';
 }

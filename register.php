@@ -21,22 +21,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_valid()) {
         $formError = 'Your session expired. Please try again.';
     } else {
-        $errors['id_number'] = validateIdNumber(trim($_POST['id_number'] ?? ''));
-        $errors['first_name'] = validateName(trim($_POST['first_name'] ?? ''), 'First Name', true);
-        $errors['middle_name'] = validateName(trim($_POST['middle_name'] ?? ''), 'Middle Name', false);
-        $errors['family_name'] = validateName(trim($_POST['family_name'] ?? ''), 'Family Name', true);
+        // No trim(): a stray space must show as an error, not be quietly removed
+        $errors['id_number'] = validateIdNumber($_POST['id_number'] ?? '');
+        $errors['first_name'] = validateName($_POST['first_name'] ?? '', 'First Name', true);
+        $errors['middle_name'] = validateName($_POST['middle_name'] ?? '', 'Middle Name', false);
+        $errors['family_name'] = validateName($_POST['family_name'] ?? '', 'Family Name', true);
         $errors['name_extension'] = validateNameExtension(
             $_POST['name_extension'] ?? '',
-            trim($_POST['name_extension_other'] ?? ''),
+            $_POST['name_extension_other'] ?? '',
             $extensions
         );
-        $errors['birthdate'] = validateBirthdate(trim($_POST['birthdate'] ?? ''));
-        $errors['purok_street'] = validatePurok(trim($_POST['purok_street'] ?? ''));
-        $errors['barangay'] = validateTitleCaseText(trim($_POST['barangay'] ?? ''), 'Barangay');
-        $errors['municipality'] = validateTitleCaseText(trim($_POST['municipality'] ?? ''), 'Municipality / City');
-        $errors['province'] = validateTitleCaseText(trim($_POST['province'] ?? ''), 'Province');
-        $errors['country'] = validateTitleCaseText(trim($_POST['country'] ?? ''), 'Country');
-        $errors['zip_code'] = validateZip(trim($_POST['zip_code'] ?? ''));
+        $errors['birthdate'] = validateBirthdate($_POST['birthdate'] ?? '');
+        $errors['purok_street'] = validatePurok($_POST['purok_street'] ?? '');
+        $errors['barangay'] = validateTitleCaseText($_POST['barangay'] ?? '', 'Barangay');
+        $errors['municipality'] = validateTitleCaseText($_POST['municipality'] ?? '', 'Municipality / City');
+        $errors['province'] = validateTitleCaseText($_POST['province'] ?? '', 'Province');
+        $errors['country'] = validateTitleCaseText($_POST['country'] ?? '', 'Country');
+        $errors['zip_code'] = validateZip($_POST['zip_code'] ?? '');
+        $errors['email'] = validateEmail($_POST['email'] ?? '');
+        $errors['username'] = validateUsername($_POST['username'] ?? '');
+        $errors['password'] = validatePassword($_POST['password'] ?? '');
+        $errors['password2'] = validatePassword2($_POST['password'] ?? '', $_POST['password2'] ?? '');
 
         $errors = array_filter($errors);
         if (!$errors) {
@@ -298,4 +303,5 @@ require 'php/header.php';
     </section>
 </form>
 <script src="js/register.js"></script>
+<script src="js/validate.js"></script>
 <?php require 'php/footer.php'; ?>
