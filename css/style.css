@@ -839,3 +839,45 @@ select {
 .error.ok {
     color: #2ea05a;
 }
+
+.meter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    visibility: hidden;
+}
+
+.meter.weak,
+.meter.medium,
+.meter.strong {
+    visibility: visible;
+}
+
+.meter-track {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--border);
+    overflow: hidden;
+}
+
+.meter-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    transition: width 0.3s, background 0.3s;
+}
+
+.meter-text {
+    min-width: 60px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.meter.weak .meter-fill { width: 33%; background: #d93a3a; }
+.meter.weak .meter-text { color: #d93a3a; }
+.meter.medium .meter-fill { width: 66%; background: #e8a317; }
+.meter.medium .meter-text { color: #e8a317; }
+.meter.strong .meter-fill { width: 100%; background: #2ea05a; }
+.meter.strong .meter-text { color: #2ea05a; }
