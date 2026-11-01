@@ -221,3 +221,57 @@ function validatePassword2($password, $password2) {
     }
     return '';
 }
+
+// The dropdown can be edited with browser tools, so the server checks the list itself
+function validateChoice($value, $allowed, $label) {
+    if ($value === '') {
+        return "$label is required.";
+    }
+    if (!in_array($value, $allowed, true)) {
+        return 'Please select a valid ' . strtolower($label) . '.';
+    }
+    return '';
+}
+
+function validateContact($value) {
+    if ($value === '') {
+        return 'Contact Number is required.';
+    }
+    if (!preg_match('/^09\d{9}$/', $value)) {
+        return 'Contact number must be 11 digits and start with 09.';
+    }
+    return '';
+}
+
+function validateGuardian($value) {
+    if ($value === '') {
+        return '';
+    }
+    return validateTitleCaseText($value, 'Guardian Name');
+}
+
+function validateAnswer($value) {
+    if ($value === '') {
+        return 'Answer is required.';
+    }
+    if (strpos($value, '  ') !== false) {
+        return 'Double space is not allowed.';
+    }
+    if (hasEdgeSpace($value)) {
+        return 'Spaces at the start or end are not allowed.';
+    }
+    if (preg_match('/[^A-Za-z ]/', $value)) {
+        return 'Answer may contain letters and spaces only.';
+    }
+    if (strlen($value) < 2 || strlen($value) > 50) {
+        return 'Answer must be 2 to 50 characters.';
+    }
+    return '';
+}
+
+function validateConsent($value) {
+    if ($value !== '1') {
+        return 'You must agree to the Privacy Notice to register.';
+    }
+    return '';
+}
