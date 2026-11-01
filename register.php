@@ -2,6 +2,8 @@
 require 'php/bootstrap.php';
 require 'php/options.php';
 require 'php/validate.php';
+require 'php/log.php';
+require 'php/users.php';
 
 $pageTitle = 'Register';
 $currentPage = 'register';
@@ -9,7 +11,10 @@ $mainClass = 'form-page';
 $old = $_POST;
 $errors = [];
 $formError = '';
-$success = false;
+
+// Shown once after a successful save, then removed
+$flash = $_SESSION['flash'] ?? '';
+unset($_SESSION['flash']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Real users never see the hidden field, so a filled one means a bot (protection 8)
@@ -19,43 +24,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!csrf_valid()) {
+        logEvent('CSRF_REJECTED', null, null, 'register');
         $formError = 'Your session expired. Please try again.';
     } else {
         // No trim(): a stray space must show as an error, not be quietly removed
-        $errors['id_number'] = validateIdNumber($_POST['id_number'] ?? '');
-        $errors['first_name'] = validateName($_POST['first_name'] ?? '', 'First Name', true);
-        $errors['middle_name'] = validateName($_POST['middle_name'] ?? '', 'Middle Name', false);
-        $errors['family_name'] = validateName($_POST['family_name'] ?? '', 'Family Name', true);
+        $errors['id_number'] = validateIdNumber(post('id_number'));
+        $errors['first_name'] = validateName(post('first_name'), 'First Name', true);
+        $errors['middle_name'] = validateName(post('middle_name'), 'Middle Name', false);
+        $errors['family_name'] = validateName(post('family_name'), 'Family Name', true);
         $errors['name_extension'] = validateNameExtension(
-            $_POST['name_extension'] ?? '',
-            $_POST['name_extension_other'] ?? '',
+            post('name_extension'),
+            post('name_extension_other'),
             $extensions
         );
-        $errors['birthdate'] = validateBirthdate($_POST['birthdate'] ?? '');
-        $errors['purok_street'] = validatePurok($_POST['purok_street'] ?? '');
-        $errors['barangay'] = validateTitleCaseText($_POST['barangay'] ?? '', 'Barangay');
-        $errors['municipality'] = validateTitleCaseText($_POST['municipality'] ?? '', 'Municipality / City');
-        $errors['province'] = validateTitleCaseText($_POST['province'] ?? '', 'Province');
-        $errors['country'] = validateTitleCaseText($_POST['country'] ?? '', 'Country');
-        $errors['zip_code'] = validateZip($_POST['zip_code'] ?? '');
-        $errors['course'] = validateChoice($_POST['course'] ?? '', $courses, 'Course');
-        $errors['year_level'] = validateChoice($_POST['year_level'] ?? '', $yearLevels, 'Year level');
-        $errors['contact_number'] = validateContact($_POST['contact_number'] ?? '');
-        $errors['guardian_name'] = validateGuardian($_POST['guardian_name'] ?? '');
-        $errors['email'] = validateEmail($_POST['email'] ?? '');
-        $errors['username'] = validateUsername($_POST['username'] ?? '');
-        $errors['password'] = validatePassword($_POST['password'] ?? '');
-        $errors['password2'] = validatePassword2($_POST['password'] ?? '', $_POST['password2'] ?? '');
+        $errors['birthdate'] = validateBirthdate(post('birthdate'));
+        $errors['purok_street'] = validatePurok(post('purok_street'));
+        $errors['barangay'] = validateTitleCaseText(post('barangay'), 'Barangay');
+        $errors['municipality'] = validateTitleCaseText(post('municipality'), 'Municipality / City');
+        $errors['province'] = validateTitleCaseText(post('province'), 'Province');
+        $errors['country'] = validateTitleCaseText(post('country'), 'Country');
+        $errors['zip_code'] = validateZip(post('zip_code'));
+        $errors['course'] = validateChoice(post('course'), $courses, 'Course');
+        $errors['year_level'] = validateChoice(post('year_level'), $yearLevels, 'Year level');
+        $errors['contact_number'] = validateContact(post('contact_number'));
+        $errors['guardian_name'] = validateGuardian(post('guardian_name'));
+        $errors['email'] = validateEmail(post('email'));
+        $errors['username'] = validateUsername(post('username'));
+        $errors['password'] = validatePassword(post('password'));
+        $errors['password2'] = validatePassword2(post('password'), post('password2'));
         foreach ($securityQuestions as $no => $question) {
-            $errors['answer_' . $no] = validateAnswer($_POST['answer_' . $no] ?? '');
+            $errors['answer_' . $no] = validateAnswer(post('answer_' . $no));
         }
-        $errors['consent'] = validateConsent($_POST['consent'] ?? '');
+        $errors['consent'] = validateConsent(post('consent'));
 
         $errors = array_filter($errors);
+
         if (!$errors) {
-            $success = true;
+            try {
+                $db = getDb();
+                $errors = findDuplicates($db, post('id_number'), post('email'), post('username'));
+
+                if (!$errors) {
+                    $extension = post('name_extension') === 'Other' ? post('name_extension_other') : post('name_extension');
+                    $data = [
+                        'id_number' => post('id_number'),
+                        'first_name' => post('first_name'),
+                        'middle_name' => post('middle_name') ?: null,
+                        'family_name' => post('family_name'),
+                        'name_extension' => $extension ?: null,
+                        'birthdate' => post('birthdate'),
+                        'purok_street' => post('purok_street'),
+                        'barangay' => post('barangay'),
+                        'municipality' => post('municipality'),
+                        'province' => post('province'),
+                        'country' => post('country'),
+                        'zip_code' => post('zip_code'),
+                        'email' => strtolower(post('email')),
+                        'username' => post('username'),
+                        'password' => post('password'),
+                        'course' => post('course'),
+                        'year_level' => post('year_level'),
+                        'contact_number' => post('contact_number'),
+                        'guardian_name' => post('guardian_name') ?: null,
+                    ];
+                    $answers = [];
+                    foreach ($securityQuestions as $no => $question) {
+                        $answers[$no] = post('answer_' . $no);
+                    }
+
+                    createUser($db, $data, $answers);
+                    logEvent('REGISTERED', $data['username'], $data['id_number']);
+
+                    $_SESSION['flash'] = 'Account saved. Email verification comes in the next step.';
+                    header('Location: register.php');
+                    exit;
+                }
+            } catch (PDOException $e) {
+                // The real error goes to the log file, the user only sees a general message (protection 10)
+                error_log($e->getMessage());
+                $formError = 'Something went wrong. Please try again.';
+            }
         }
     }
+}
+
+function post($name) {
+    return $_POST[$name] ?? '';
 }
 
 function old($name) {
@@ -83,8 +137,8 @@ require 'php/header.php';
 <?php if ($formError): ?>
     <div class="form-error"><?= e($formError) ?></div>
 <?php endif; ?>
-<?php if ($success): ?>
-    <div class="form-success">All fields are valid. Saving to the database comes in a later step.</div>
+<?php if ($flash): ?>
+    <div class="form-success"><?= e($flash) ?></div>
 <?php endif; ?>
 
 <form method="post" action="register.php" novalidate>
