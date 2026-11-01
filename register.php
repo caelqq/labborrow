@@ -16,6 +16,10 @@ $formError = '';
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 
+function post($name) {
+    return $_POST[$name] ?? '';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Real users never see the hidden field, so a filled one means a bot (protection 8)
     if (!empty($_POST['website'])) {
@@ -106,10 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-}
-
-function post($name) {
-    return $_POST[$name] ?? '';
 }
 
 function old($name) {
@@ -323,6 +323,10 @@ require 'php/header.php';
             <div class="field">
                 <label for="password">Password <span class="required">*</span></label>
                 <input type="password" id="password" name="password" maxlength="64">
+                <div class="meter" id="password-meter">
+                    <div class="meter-track"><div class="meter-fill"></div></div>
+                    <span class="meter-text"></span>
+                </div>
                 <div class="error"><?= err('password') ?></div>
             </div>
 

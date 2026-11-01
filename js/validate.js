@@ -248,3 +248,15 @@ document.querySelector('form').addEventListener('submit', (event) => {
         document.getElementById(firstBad).focus();
     }
 });
+
+const passwordBox = document.getElementById('password');
+const meter = document.getElementById('password-meter');
+
+function updateMeter() {
+    const level = passwordBox.value === '' ? '' : passwordStrength(passwordBox.value);
+    meter.className = 'meter ' + level.toLowerCase();
+    meter.querySelector('.meter-text').textContent = level;
+}
+
+passwordBox.addEventListener('input', updateMeter);
+updateMeter();
