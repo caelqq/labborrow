@@ -814,3 +814,24 @@ select {
         font-size: 26px;
     }
 }
+
+.form-error,
+.form-success {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-error {
+    background: rgba(217, 58, 58, 0.12);
+    border: 1px solid var(--error);
+    color: var(--error);
+}
+
+.form-success {
+    background: rgba(46, 160, 90, 0.12);
+    border: 1px solid #2ea05a;
+    color: #2ea05a;
+}

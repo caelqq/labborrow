@@ -1,12 +1,37 @@
 <?php
 require 'php/bootstrap.php';
 require 'php/options.php';
+require 'php/validate.php';
 
 $pageTitle = 'Register';
 $currentPage = 'register';
 $mainClass = 'form-page';
 $old = $_POST;
 $errors = [];
+$formError = '';
+$success = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Real users never see the hidden field, so a filled one means a bot (protection 8)
+    if (!empty($_POST['website'])) {
+        header('Location: register.php');
+        exit;
+    }
+
+    if (!csrf_valid()) {
+        $formError = 'Your session expired. Please try again.';
+    } else {
+        $errors['id_number'] = validateIdNumber(trim($_POST['id_number'] ?? ''));
+        $errors['first_name'] = validateName(trim($_POST['first_name'] ?? ''), 'First Name', true);
+        $errors['middle_name'] = validateName(trim($_POST['middle_name'] ?? ''), 'Middle Name', false);
+        $errors['family_name'] = validateName(trim($_POST['family_name'] ?? ''), 'Family Name', true);
+
+        $errors = array_filter($errors);
+        if (!$errors) {
+            $success = true;
+        }
+    }
+}
 
 function old($name) {
     global $old;
@@ -29,6 +54,13 @@ require 'php/header.php';
     <h1>Create your account</h1>
     <p>Fill in your details to start borrowing laboratory equipment. Fields marked with <span class="hero-star">*</span> are required.</p>
 </section>
+
+<?php if ($formError): ?>
+    <div class="form-error"><?= e($formError) ?></div>
+<?php endif; ?>
+<?php if ($success): ?>
+    <div class="form-success">All checked fields are valid. Saving to the database comes in a later step.</div>
+<?php endif; ?>
 
 <form method="post" action="register.php" novalidate>
     <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
