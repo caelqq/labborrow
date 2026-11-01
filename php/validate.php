@@ -44,3 +44,46 @@ function validateName($value, $label, $required) {
     }
     return '';
 }
+
+function calculateAge($birthdate) {
+    $born = DateTime::createFromFormat('Y-m-d', $birthdate);
+    return $born->diff(new DateTime('today'))->y;
+}
+
+function validateBirthdate($value) {
+    if ($value === '') {
+        return 'Birthdate is required.';
+    }
+    $born = DateTime::createFromFormat('Y-m-d', $value);
+    // The format check catches fake dates like 2005-02-31
+    if (!$born || $born->format('Y-m-d') !== $value) {
+        return 'Please enter a valid birthdate.';
+    }
+    if ($born > new DateTime('today')) {
+        return 'Birthdate cannot be in the future.';
+    }
+    if (calculateAge($value) < 18) {
+        return 'You must be at least 18 years old to register.';
+    }
+    return '';
+}
+
+// The dropdown can be edited with browser tools, so the server checks the list itself
+function validateNameExtension($choice, $other, $allowed) {
+    if ($choice === '') {
+        return '';
+    }
+    if ($choice === 'Other') {
+        if ($other === '') {
+            return 'Please type your name extension.';
+        }
+        if (!in_array($other, ['I', 'II', 'III', 'IV', 'IX', 'X'], true)) {
+            return 'Name extension must be I, II, III, IV, IX or X.';
+        }
+        return '';
+    }
+    if (!in_array($choice, $allowed, true)) {
+        return 'Please select a valid name extension.';
+    }
+    return '';
+}

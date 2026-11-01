@@ -25,6 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['first_name'] = validateName(trim($_POST['first_name'] ?? ''), 'First Name', true);
         $errors['middle_name'] = validateName(trim($_POST['middle_name'] ?? ''), 'Middle Name', false);
         $errors['family_name'] = validateName(trim($_POST['family_name'] ?? ''), 'Family Name', true);
+        $errors['name_extension'] = validateNameExtension(
+            $_POST['name_extension'] ?? '',
+            trim($_POST['name_extension_other'] ?? ''),
+            $extensions
+        );
+        $errors['birthdate'] = validateBirthdate(trim($_POST['birthdate'] ?? ''));
 
         $errors = array_filter($errors);
         if (!$errors) {
