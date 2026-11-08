@@ -80,3 +80,9 @@ CREATE TABLE ip_blocks (
     blocked_until DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE login_attempts (
+    username VARCHAR(100) PRIMARY KEY,
+    failed_count INT NOT NULL DEFAULT 0,
+    locked_until DATETIME NULL
+);
