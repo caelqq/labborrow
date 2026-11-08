@@ -1,6 +1,7 @@
 <?php
 require 'php/bootstrap.php';
 require 'php/otp.php';
+require 'php/login_attempts.php';
 
 $pageTitle = 'Verify Email';
 $currentPage = 'verify';
@@ -39,11 +40,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $codeError = verifyOtp($db, $pending, $purpose, $code);
                     if ($codeError === '') {
-                        // Only the register purpose exists so far; log-in and reset are added later
-                        $db->prepare('UPDATE users SET is_verified = 1 WHERE id_number = ?')->execute([$pending['id_number']]);
-                        logEvent('ACCOUNT_VERIFIED', $pending['username'], $pending['id_number']);
-                        unset($_SESSION['pending_otp']);
-                        $done = true;
+                        if ($purpose === 'register') {
+                            $db->prepare('UPDATE users SET is_verified = 1 WHERE id_number = ?')->execute([$pending['id_number']]);
+                            logEvent('ACCOUNT_VERIFIED', $pending['username'], $pending['id_number']);
+                            unset($_SESSION['pending_otp']);
+                            $done = true;
+                        } else {
+                            $stmt = $db->prepare('SELECT role FROM users WHERE id_number = ?');
+                            $stmt->execute([$pending['id_number']]);
+                            $role = $stmt->fetchColumn();
+
+                            // New session ID after log-in, so an old ID cannot be reused
+                            session_regenerate_id(true);
+                            $_SESSION['user_id'] = $pending['id_number'];
+                            $_SESSION['username'] = $pending['username'];
+                            $_SESSION['role'] = $role;
+                            $_SESSION['last_active'] = time();
+                            unset($_SESSION['pending_otp'], $_SESSION['login_name']);
+
+                            resetFailures($db, $pending['username']);
+                            logEvent('LOGIN_SUCCESS', $pending['username'], $pending['id_number']);
+                            header('Location: account.php');
+                            exit;
+                        }
                     }
                 }
             }
@@ -67,9 +86,9 @@ require 'php/header.php';
 <?php if ($done): ?>
     <section class="form-hero">
         <h1>Account verified</h1>
-        <p>Your email is confirmed. You can log in once the log-in page is ready.</p>
+        <p>Your email is confirmed. You can now log in.</p>
     </section>
-    <a class="btn" href="index.php">Go to Home</a>
+    <a class="btn" href="login.php">Go to Log-in</a>
 <?php else: ?>
     <section class="form-hero">
         <h1>Check your email</h1>
