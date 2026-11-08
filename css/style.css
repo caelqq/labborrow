@@ -881,3 +881,27 @@ select {
 .meter.medium .meter-text { color: #e8a317; }
 .meter.strong .meter-fill { width: 100%; background: #2ea05a; }
 .meter.strong .meter-text { color: #2ea05a; }
+
+.otp-input {
+    text-align: center;
+    font-size: 26px;
+    letter-spacing: 10px;
+}
+
+.secondary-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    background: var(--purple-light);
+    color: var(--heading);
+}
+
+.secondary-btn:hover {
+    background: var(--purple);
+    color: #fff;
+}
+
+.secondary-btn:disabled {
+    background: var(--border);
+    color: var(--muted);
+}
