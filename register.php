@@ -1,11 +1,11 @@
 <?php
-require 'php/bootstrap.php';
-require 'php/options.php';
-require 'php/validate.php';
-require 'php/log.php';
-require 'php/users.php';
-require 'php/otp.php';
-require 'php/captcha.php';
+require 'php/core/bootstrap.php';
+require 'php/core/options.php';
+require 'php/core/validate.php';
+require 'php/core/log.php';
+require 'php/auth/users.php';
+require 'php/auth/otp.php';
+require 'php/auth/captcha.php';
 
 $pageTitle = 'Register';
 $currentPage = 'register';
@@ -144,7 +144,7 @@ function selected($name, $value) {
     return (($old[$name] ?? '') === $value) ? 'selected' : '';
 }
 
-require 'php/header.php';
+require 'php/core/header.php';
 ?>
 <section class="form-hero">
     <h1>Create your account</h1>
@@ -381,7 +381,7 @@ require 'php/header.php';
         <div class="field">
             <label for="captcha">Type the characters you see <span class="required">*</span></label>
             <div class="captcha-row">
-                <img id="captcha-img" class="captcha-img" src="php/captcha_image.php?t=<?= time() ?>" width="210" height="65" alt="CAPTCHA image">
+                <img id="captcha-img" class="captcha-img" src="php/background/captcha_image.php?t=<?= time() ?>" width="210" height="65" alt="CAPTCHA image">
                 <button type="button" id="captcha-refresh" class="refresh-btn">New image</button>
             </div>
             <input type="text" id="captcha" name="captcha" maxlength="6" autocomplete="off">
@@ -395,4 +395,4 @@ require 'php/header.php';
 <script src="js/register.js"></script>
 <script src="js/validate.js"></script>
 <script src="js/captcha.js"></script>
-<?php require 'php/footer.php'; ?>
+<?php require 'php/core/footer.php'; ?>

@@ -1,11 +1,11 @@
 <?php
-require 'php/bootstrap.php';
+require 'php/core/bootstrap.php';
 $pageTitle = 'Home';
 $currentPage = 'home';
 $mainClass = 'wide';
 $bodyClass = 'has-sidebar';
 $showSidebar = true;
-require 'php/header.php';
+require 'php/core/header.php';
 ?>
 <section class="hero">
     <h1>Borrow lab equipment, the easy way</h1>
@@ -36,4 +36,4 @@ require 'php/header.php';
 </div>
 
 <p class="reminder">Your account is protected. Passwords are hashed, every log-in needs an email code, and repeated wrong attempts lock the account and alert you by email.</p>
-<?php require 'php/footer.php'; ?>
+<?php require 'php/core/footer.php'; ?>

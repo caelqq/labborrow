@@ -1,6 +1,6 @@
 <?php
-require __DIR__ . '/bootstrap.php';
-require __DIR__ . '/auth.php';
+require __DIR__ . '/../core/bootstrap.php';
+require __DIR__ . '/../auth/auth.php';
 
 // requireLogin() refreshes the idle timer
 requireLogin();

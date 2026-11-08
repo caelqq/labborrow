@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/mailer.php';
-require_once __DIR__ . '/log.php';
+require_once __DIR__ . '/../core/log.php';
 
 // The link in the email points here; change it if your site address changes
 define('APP_URL', 'http://localhost/labborrow');

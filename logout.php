@@ -1,5 +1,5 @@
 <?php
-require 'php/bootstrap.php';
+require 'php/core/bootstrap.php';
 
 $_SESSION = [];
 // Also delete the cookie in the browser

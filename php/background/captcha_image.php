@@ -1,6 +1,6 @@
 <?php
-require __DIR__ . '/bootstrap.php';
-require __DIR__ . '/captcha.php';
+require __DIR__ . '/../core/bootstrap.php';
+require __DIR__ . '/../auth/captcha.php';
 
 $code = captchaNewCode();
 

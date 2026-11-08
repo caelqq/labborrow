@@ -1,8 +1,8 @@
 <?php
-require 'php/bootstrap.php';
+require 'php/core/bootstrap.php';
 $pageTitle = 'Privacy Notice';
 $currentPage = 'privacy';
-require 'php/header.php';
+require 'php/core/header.php';
 ?>
 <div class="card">
     <h1>Privacy Notice</h1>
@@ -20,4 +20,4 @@ require 'php/header.php';
     <h2>Contact</h2>
     <p>For questions about your data, contact the system administrator of this laboratory.</p>
 </div>
-<?php require 'php/footer.php'; ?>
+<?php require 'php/core/footer.php'; ?>

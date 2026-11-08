@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/crypto.php';
+require_once __DIR__ . '/../core/crypto.php';
 
 function findDuplicates($db, $idNumber, $email, $username) {
     $checks = [

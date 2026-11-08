@@ -219,7 +219,7 @@ document.getElementById('name_extension_other').addEventListener('input', () => 
 
 async function checkUsername(name) {
     try {
-        const response = await fetch('php/check_username.php?username=' + encodeURIComponent(name));
+        const response = await fetch('php/background/check_username.php?username=' + encodeURIComponent(name));
         const data = await response.json();
         // Ignore the answer if the user has already typed something else
         if (val('username') !== name) return;

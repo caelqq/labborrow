@@ -1,7 +1,7 @@
 <?php
-require 'php/bootstrap.php';
-require 'php/otp.php';
-require 'php/login_attempts.php';
+require 'php/core/bootstrap.php';
+require 'php/auth/otp.php';
+require 'php/auth/login_attempts.php';
 
 $pageTitle = 'Verify Email';
 $currentPage = 'verify';
@@ -90,7 +90,7 @@ if (!$done) {
     }
 }
 
-require 'php/header.php';
+require 'php/core/header.php';
 ?>
 <?php if ($done): ?>
     <section class="form-hero">
@@ -130,4 +130,4 @@ require 'php/header.php';
     </section>
 <?php endif; ?>
 <script src="js/verify.js"></script>
-<?php require 'php/footer.php'; ?>
+<?php require 'php/core/footer.php'; ?>

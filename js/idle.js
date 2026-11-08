@@ -37,7 +37,7 @@ function showWarning() {
 // Asking the server resets the real timer; the page timers only follow it
 async function stay() {
     try {
-        await fetch('php/keepalive.php');
+        await fetch('php/background/keepalive.php');
     } catch (e) {}
     clearInterval(tickTimer);
     clearTimeout(outTimer);

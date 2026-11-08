@@ -1,6 +1,6 @@
 <?php
-require __DIR__ . '/bootstrap.php';
-require __DIR__ . '/validate.php';
+require __DIR__ . '/../core/bootstrap.php';
+require __DIR__ . '/../core/validate.php';
 
 header('Content-Type: application/json');
 

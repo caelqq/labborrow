@@ -1,11 +1,11 @@
 <?php
-require 'php/bootstrap.php';
-require 'php/validate.php';
-require 'php/log.php';
-require 'php/captcha.php';
-require 'php/otp.php';
-require 'php/login_attempts.php';
-require 'php/ip_block.php';
+require 'php/core/bootstrap.php';
+require 'php/core/validate.php';
+require 'php/core/log.php';
+require 'php/auth/captcha.php';
+require 'php/auth/otp.php';
+require 'php/auth/login_attempts.php';
+require 'php/auth/ip_block.php';
 
 if (!empty($_SESSION['user_id'])) {
     header('Location: account.php');
@@ -103,7 +103,7 @@ try {
     error_log($e->getMessage());
 }
 
-require 'php/header.php';
+require 'php/core/header.php';
 ?>
 <div class="auth-card">
     <div class="auth-top">
@@ -154,7 +154,7 @@ require 'php/header.php';
             <div class="field">
                 <label for="captcha">Type the characters you see <span class="required">*</span></label>
                 <div class="captcha-row">
-                    <img id="captcha-img" class="captcha-img" src="php/captcha_image.php?t=<?= time() ?>" width="210" height="65" alt="CAPTCHA image">
+                    <img id="captcha-img" class="captcha-img" src="php/background/captcha_image.php?t=<?= time() ?>" width="210" height="65" alt="CAPTCHA image">
                     <button type="button" id="captcha-refresh" class="refresh-btn">New image</button>
                 </div>
                 <div class="input-wrap">
@@ -177,4 +177,4 @@ require 'php/header.php';
 </div>
 <script src="js/login.js"></script>
 <script src="js/captcha.js"></script>
-<?php require 'php/footer.php'; ?>
+<?php require 'php/core/footer.php'; ?>

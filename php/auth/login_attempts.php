@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/alerts.php';
+require_once __DIR__ . '/../mail/alerts.php';
 
 define('FORGOT_AFTER', 2);
 const LOCK_SECONDS = [1 => 23, 2 => 46, 3 => 92];

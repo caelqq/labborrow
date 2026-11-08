@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/mailer.php';
-require_once __DIR__ . '/log.php';
+require_once __DIR__ . '/../mail/mailer.php';
+require_once __DIR__ . '/../core/log.php';
 
 define('OTP_MINUTES', 4);
 define('OTP_MAX_TRIES', 3);

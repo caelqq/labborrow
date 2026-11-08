@@ -1,8 +1,8 @@
 <?php
-require 'php/bootstrap.php';
-require 'php/validate.php';
-require 'php/log.php';
-require 'php/login_attempts.php';
+require 'php/core/bootstrap.php';
+require 'php/core/validate.php';
+require 'php/core/log.php';
+require 'php/auth/login_attempts.php';
 
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 unset($_SESSION['reset_ok']);
                 resetFailures($db, $reset['username']);
                 logEvent('PASSWORD_CHANGED', $reset['username'], $reset['id_number']);
-                require_once 'php/alerts.php';
+                require_once 'php/mail/alerts.php';
                 sendPasswordChangedAlert($db, $reset['id_number']);
                 $done = true;
             }
@@ -84,7 +84,7 @@ function err($name) {
     return e($errors[$name] ?? '');
 }
 
-require 'php/header.php';
+require 'php/core/header.php';
 ?>
 <div class="auth-card">
     <div class="auth-top">
@@ -139,4 +139,4 @@ require 'php/header.php';
 <?php if (!$done): ?>
     <script src="js/change_password.js"></script>
 <?php endif; ?>
-<?php require 'php/footer.php'; ?>
+<?php require 'php/core/footer.php'; ?>
