@@ -45,6 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             logEvent('ACCOUNT_VERIFIED', $pending['username'], $pending['id_number']);
                             unset($_SESSION['pending_otp']);
                             $done = true;
+                        } elseif ($purpose === 'reset') {
+                            // Only this flag opens change_password.php
+                            unset($_SESSION['pending_otp']);
+                            $_SESSION['reset_ok'] = [
+                                'id_number' => $pending['id_number'],
+                                'username' => $pending['username'],
+                            ];
+                            header('Location: change_password.php');
+                            exit;
                         } else {
                             $stmt = $db->prepare('SELECT role FROM users WHERE id_number = ?');
                             $stmt->execute([$pending['id_number']]);

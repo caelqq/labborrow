@@ -1419,3 +1419,43 @@ main.login-page {
     margin: 0;
     color: var(--muted);
 }
+
+.q-list {
+    display: grid;
+    gap: 10px;
+}
+
+.auth-body .field .q-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.auth-body .field .q-option:hover {
+    border-color: var(--purple);
+}
+
+.auth-body .field .q-option:has(input:checked) {
+    border-color: var(--purple);
+    background: var(--purple-light);
+}
+
+.q-option input {
+    width: auto;
+    padding: 0;
+    accent-color: var(--purple);
+}
+
+.auth-body .btn {
+    display: block;
+    width: fit-content;
+    margin: 20px auto 8px;
+}
