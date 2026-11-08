@@ -18,10 +18,12 @@ function findDuplicates($db, $idNumber, $email, $username) {
     return $errors;
 }
 
-// The user and the three answers are saved together, or not at all
+// The user, the first password history row and the three answers are saved together, or not at all
 function createUser($db, $d, $answers) {
     $db->beginTransaction();
     try {
+        $passwordHash = password_hash($d['password'], PASSWORD_BCRYPT, ['cost' => 12]);
+
         $stmt = $db->prepare(
             'INSERT INTO users (id_number, first_name, middle_name, family_name, name_extension, birthdate,
                 purok_street, barangay, municipality, province, country, zip_code, email, username,
@@ -45,13 +47,17 @@ function createUser($db, $d, $answers) {
             'zip_code' => $d['zip_code'],
             'email' => $d['email'],
             'username' => $d['username'],
-            'password_hash' => password_hash($d['password'], PASSWORD_BCRYPT, ['cost' => 12]),
+            'password_hash' => $passwordHash,
             'course' => $d['course'],
             'year_level' => $d['year_level'],
             'contact_number_enc' => encryptField($d['contact_number']),
             'guardian_name' => $d['guardian_name'],
             'consent_at' => date('Y-m-d H:i:s'),
         ]);
+
+        // The first password counts as history, so it cannot be reused later
+        $db->prepare('INSERT INTO password_history (user_id, password_hash) VALUES (?, ?)')
+            ->execute([$d['id_number'], $passwordHash]);
 
         $stmt = $db->prepare('INSERT INTO security_answers (user_id, question_no, answer_hash) VALUES (?, ?, ?)');
         foreach ($answers as $no => $answer) {
