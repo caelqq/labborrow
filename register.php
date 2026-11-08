@@ -4,6 +4,7 @@ require 'php/options.php';
 require 'php/validate.php';
 require 'php/log.php';
 require 'php/users.php';
+require 'php/otp.php';
 
 $pageTitle = 'Register';
 $currentPage = 'register';
@@ -11,10 +12,6 @@ $mainClass = 'form-page';
 $old = $_POST;
 $errors = [];
 $formError = '';
-
-// Shown once after a successful save, then removed
-$flash = $_SESSION['flash'] ?? '';
-unset($_SESSION['flash']);
 
 function post($name) {
     return $_POST[$name] ?? '';
@@ -99,8 +96,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     createUser($db, $data, $answers);
                     logEvent('REGISTERED', $data['username'], $data['id_number']);
 
-                    $_SESSION['flash'] = 'Account saved. Email verification comes in the next step.';
-                    header('Location: register.php');
+                    // verify.php only opens when this session flag exists
+                    $_SESSION['pending_otp'] = [
+                        'id_number' => $data['id_number'],
+                        'username' => $data['username'],
+                        'email' => $data['email'],
+                        'purpose' => 'register',
+                    ];
+                    // If the email fails, the user can still press Resend on the next page
+                    sendOtp($db, $_SESSION['pending_otp'], 'register');
+
+                    header('Location: verify.php');
                     exit;
                 }
             } catch (PDOException $e) {
@@ -136,9 +142,6 @@ require 'php/header.php';
 
 <?php if ($formError): ?>
     <div class="form-error"><?= e($formError) ?></div>
-<?php endif; ?>
-<?php if ($flash): ?>
-    <div class="form-success"><?= e($flash) ?></div>
 <?php endif; ?>
 
 <form method="post" action="register.php" novalidate>
