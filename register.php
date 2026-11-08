@@ -5,6 +5,7 @@ require 'php/validate.php';
 require 'php/log.php';
 require 'php/users.php';
 require 'php/otp.php';
+require 'php/captcha.php';
 
 $pageTitle = 'Register';
 $currentPage = 'register';
@@ -57,6 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['answer_' . $no] = validateAnswer(post('answer_' . $no));
         }
         $errors['consent'] = validateConsent(post('consent'));
+
+        // A missing or empty CAPTCHA field fails too, so deleting it in the browser does not help
+        if (post('captcha') === '') {
+            $errors['captcha'] = 'Please enter the characters shown in the image.';
+        } elseif (!captchaValid(post('captcha'))) {
+            $errors['captcha'] = 'The characters do not match. Please try again.';
+        }
+        if (!empty($errors['captcha'])) {
+            logEvent('CAPTCHA_FAILED', null, null, 'register');
+        }
 
         $errors = array_filter($errors);
 
@@ -367,10 +378,21 @@ require 'php/header.php';
         </div>
         <div class="error"><?= err('consent') ?></div>
 
+        <div class="field">
+            <label for="captcha">Type the characters you see <span class="required">*</span></label>
+            <div class="captcha-row">
+                <img id="captcha-img" class="captcha-img" src="php/captcha_image.php?t=<?= time() ?>" width="210" height="65" alt="CAPTCHA image">
+                <button type="button" id="captcha-refresh" class="refresh-btn">New image</button>
+            </div>
+            <input type="text" id="captcha" name="captcha" maxlength="6" autocomplete="off">
+            <div class="error"><?= err('captcha') ?></div>
+        </div>
+
         <button type="submit" class="submit-btn">Create account</button>
         <p class="form-foot">Already have an account? <a href="login.php">Log in here</a></p>
     </section>
 </form>
 <script src="js/register.js"></script>
 <script src="js/validate.js"></script>
+<script src="js/captcha.js"></script>
 <?php require 'php/footer.php'; ?>
