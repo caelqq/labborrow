@@ -5,6 +5,7 @@ require 'php/log.php';
 require 'php/captcha.php';
 require 'php/otp.php';
 require 'php/login_attempts.php';
+require 'php/ip_block.php';
 
 if (!empty($_SESSION['user_id'])) {
     header('Location: account.php');
@@ -39,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db = getDb();
 
-            // While locked, nothing else is checked
-            if (lockSecondsLeft($db, $username) === 0) {
+            // While the IP or the account is locked, nothing else is checked
+            if (ipBlockedSeconds($db) === 0 && lockSecondsLeft($db, $username) === 0) {
                 // Every problem gets the same message, so nothing is revealed
                 $formError = 'Invalid username or password.';
 
@@ -79,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $userId = $user ? $user['id_number'] : null;
                     logEvent('LOGIN_FAILED', substr($username, 0, 100), $userId);
                     recordFailure($db, $username, $userId);
+                    blockIpIfNeeded($db);
                 }
             }
         } catch (PDOException $e) {
@@ -88,16 +90,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// The lock state is read from the server every time the page is shown
+// Both locks are read from the server every time the page is shown
 $name = $_SESSION['login_name'] ?? '';
-if ($name !== '') {
-    try {
-        $db = getDb();
-        $wait = lockSecondsLeft($db, $name);
+try {
+    $db = getDb();
+    $wait = ipBlockedSeconds($db);
+    if ($name !== '') {
+        $wait = max($wait, lockSecondsLeft($db, $name));
         $failed = failedCount($db, $name);
-    } catch (PDOException $e) {
-        error_log($e->getMessage());
     }
+} catch (PDOException $e) {
+    error_log($e->getMessage());
 }
 
 require 'php/header.php';
@@ -114,7 +117,7 @@ require 'php/header.php';
     </div>
 
     <div class="auth-body">
-        <?php if ($formError): ?>
+        <?php if ($formError && $wait === 0): ?>
             <div class="form-error"><?= e($formError) ?></div>
         <?php endif; ?>
         <?php if ($wait > 0): ?>
