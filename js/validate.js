@@ -191,6 +191,14 @@ function show(id) {
     return message;
 }
 
+// Spaces cannot be typed in the password boxes; this runs before the checks below (the server rejects them too)
+['password', 'password2'].forEach((id) => {
+    const box = document.getElementById(id);
+    box.addEventListener('input', () => {
+        box.value = box.value.replace(/\s/g, '');
+    });
+});
+
 Object.keys(rules).forEach((id) => {
     const input = document.getElementById(id);
     const isChange = input.tagName === 'SELECT' || input.type === 'date' || input.type === 'checkbox';
