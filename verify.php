@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             resetFailures($db, $pending['username']);
                             logEvent('LOGIN_SUCCESS', $pending['username'], $pending['id_number']);
-                            header('Location: account.php');
+                            header('Location: ' . ($role === 'admin' ? 'dashboard.php' : 'account.php'));
                             exit;
                         }
                     }

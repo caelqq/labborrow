@@ -8,7 +8,7 @@ require 'php/auth/login_attempts.php';
 require 'php/auth/ip_block.php';
 
 if (!empty($_SESSION['user_id'])) {
-    header('Location: account.php');
+    header('Location: ' . (($_SESSION['role'] ?? '') === 'admin' ? 'dashboard.php' : 'account.php'));
     exit;
 }
 
