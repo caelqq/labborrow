@@ -1459,3 +1459,156 @@ main.login-page {
     width: fit-content;
     margin: 20px auto 8px;
 }
+
+
+main.dashboard-page {
+    max-width: 1200px;
+}
+
+.dash-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.dash-head h1 {
+    margin: 0;
+}
+
+.dash-status {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 16px var(--shadow);
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.stat:hover {
+    transform: translateY(-4px);
+    border-color: var(--purple);
+    box-shadow: 0 12px 24px var(--shadow-hover);
+}
+
+.stat-num {
+    display: block;
+    color: var(--heading);
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.panel {
+    margin-bottom: 20px;
+    padding: 22px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px var(--shadow);
+}
+
+.panel h2 {
+    margin: 0 0 14px;
+    padding: 0;
+    border: none;
+    color: var(--heading);
+    font-size: 18px;
+}
+
+.panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.panel-grid .panel {
+    margin-bottom: 0;
+}
+
+.chart-box {
+    position: relative;
+    height: 260px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 9px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+    color: var(--heading);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.data-table tbody tr:hover {
+    background: var(--purple-light);
+}
+
+.data-table .empty {
+    text-align: center;
+    color: var(--muted);
+}
+
+.data-table .ua {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0 14px;
+    margin-bottom: 14px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.filter-actions button {
+    margin-top: 0;
+    padding: 10px 20px;
+}
+
+@media (max-width: 800px) {
+    .panel-grid {
+        grid-template-columns: 1fr;
+    }
+}
