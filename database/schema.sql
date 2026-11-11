@@ -89,3 +89,32 @@ CREATE TABLE login_attempts (
 
 -- Added for the staff role
 ALTER TABLE users MODIFY role ENUM('user','staff','admin') NOT NULL DEFAULT 'user';
+
+CREATE TABLE items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(60) NOT NULL,
+    quantity INT NOT NULL,
+    photo VARCHAR(60) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE borrow_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    user_id CHAR(9) NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    status ENUM('pending','approved','borrowed','returned','rejected') NOT NULL DEFAULT 'pending',
+    duration_hours INT NULL,
+    reject_reason VARCHAR(100) NULL,
+    return_note VARCHAR(100) NULL,
+    reviewed_by CHAR(9) NULL,
+    requested_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at DATETIME NULL,
+    picked_up_at DATETIME NULL,
+    due_at DATETIME NULL,
+    returned_at DATETIME NULL,
+    FOREIGN KEY (item_id) REFERENCES items(id),
+    FOREIGN KEY (user_id) REFERENCES users(id_number),
+    FOREIGN KEY (reviewed_by) REFERENCES users(id_number)
+);
