@@ -1612,3 +1612,28 @@ main.dashboard-page {
         grid-template-columns: 1fr;
     }
 }
+
+.site-header {
+    position: relative;
+}
+
+.header-user {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.header-user strong {
+    color: var(--heading);
+}
+
+@media (max-width: 800px) {
+    .header-user {
+        position: static;
+        transform: none;
+        margin-right: auto;
+    }
+}

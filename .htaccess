@@ -1,0 +1,12 @@
+Options -Indexes
+ErrorDocument 404 "Page Not Found"
+
+RewriteEngine On
+
+# Helper folders and project files: nobody needs to open these in a browser
+RewriteRule ^(php/(core|auth|mail)|vendor|database|scripts|\.git)(/|$) - [R=404,L]
+RewriteRule ^(composer\.json|composer\.lock|config\.sample\.php|\.gitignore)$ - [R=404,L]
+
+# A script tag, image or fetch is fine; typing the address (a "document" request) is not
+RewriteCond %{HTTP:Sec-Fetch-Dest} ^document$ [NC]
+RewriteRule ^(js|php/background)/ - [R=404,L]

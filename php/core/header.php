@@ -22,6 +22,9 @@
     </button>
 </div>
 <header class="site-header">
+    <?php if ($loggedIn): ?>
+        <span class="header-user">Logged in as <strong><?= e($_SESSION['username']) ?></strong></span>
+    <?php endif; ?>
     <nav>
         <a href="index.php">Home</a>
         <?php if ($loggedIn): ?>
