@@ -86,3 +86,6 @@ CREATE TABLE login_attempts (
     failed_count INT NOT NULL DEFAULT 0,
     locked_until DATETIME NULL
 );
+
+-- Added for the staff role
+ALTER TABLE users MODIFY role ENUM('user','staff','admin') NOT NULL DEFAULT 'user';
