@@ -22,6 +22,11 @@
     </button>
 </div>
 <header class="site-header">
+    <?php if (!empty($showStaffMenu)): ?>
+        <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+    <?php endif; ?>
     <?php if ($loggedIn): ?>
         <span class="header-user">Logged in as <strong><?= e($_SESSION['username']) ?></strong></span>
     <?php endif; ?>
@@ -39,4 +44,5 @@
         <?php endif; ?>
     </nav>
 </header>
+<?php if (!empty($showStaffMenu)) { require __DIR__ . '/staff_menu.php'; } ?>
 <main class="<?= e($mainClass ?? '') ?>">

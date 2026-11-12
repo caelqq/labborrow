@@ -3,6 +3,12 @@ require 'php/core/bootstrap.php';
 require 'php/auth/auth.php';
 requireLogin();
 
+// Staff have their own page
+if (($_SESSION['role'] ?? '') === 'staff') {
+    header('Location: staff.php');
+    exit;
+}
+
 $pageTitle = 'My Account';
 $currentPage = 'account';
 require 'php/core/header.php';
