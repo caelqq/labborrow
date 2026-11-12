@@ -1,3 +1,5 @@
 config.php
 vendor/
 *.log
+images/items/*
+!images/items/.htaccess

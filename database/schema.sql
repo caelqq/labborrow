@@ -118,3 +118,6 @@ CREATE TABLE borrow_requests (
     FOREIGN KEY (user_id) REFERENCES users(id_number),
     FOREIGN KEY (reviewed_by) REFERENCES users(id_number)
 );
+
+-- Soft delete: a deleted item stays in the table so old borrow records stay valid
+ALTER TABLE items ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
