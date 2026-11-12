@@ -5,7 +5,7 @@ const warn = parseInt(tag.dataset.warn, 10) * 1000;
 let warnTimer;
 let outTimer;
 let tickTimer;
-let overlay;
+let idleBox;
 
 function start() {
     warnTimer = setTimeout(showWarning, warn);
@@ -16,15 +16,15 @@ function start() {
 
 function showWarning() {
     let left = Math.round((limit - warn) / 1000);
-    overlay = document.createElement('div');
-    overlay.className = 'idle-overlay';
-    overlay.innerHTML =
+    idleBox = document.createElement('div');
+    idleBox.className = 'idle-overlay';
+    idleBox.innerHTML =
         '<div class="idle-box">' +
         '<h2>Are you still there?</h2>' +
         '<p>You will be logged out in <strong id="idle-left">' + left + '</strong> seconds.</p>' +
         '<button type="button" id="idle-stay">Stay logged in</button>' +
         '</div>';
-    document.body.appendChild(overlay);
+    document.body.appendChild(idleBox);
 
     tickTimer = setInterval(() => {
         left--;
@@ -34,15 +34,27 @@ function showWarning() {
     document.getElementById('idle-stay').addEventListener('click', stay);
 }
 
+// Starts the countdown again from zero
+function restart() {
+    clearTimeout(warnTimer);
+    clearTimeout(outTimer);
+    clearInterval(tickTimer);
+    if (idleBox) {
+        idleBox.remove();
+        idleBox = null;
+    }
+    start();
+}
+
 // Asking the server resets the real timer; the page timers only follow it
 async function stay() {
     try {
         await fetch('php/background/keepalive.php');
     } catch (e) {}
-    clearInterval(tickTimer);
-    clearTimeout(outTimer);
-    overlay.remove();
-    start();
+    restart();
 }
+
+// Pages that do real work without reloading (the staff page) send this after each action
+window.addEventListener('user-active', restart);
 
 start();
