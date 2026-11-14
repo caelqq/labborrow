@@ -4,10 +4,12 @@ const grid = document.getElementById('item-grid');
 const empty = document.getElementById('items-empty');
 const showHidden = document.getElementById('show-hidden');
 const search = document.getElementById('item-search');
+const chips = document.querySelectorAll('#item-filter .chip');
 const pageMain = document.querySelector('main');
 
 let latest = null;
 let lastText = '';
+let filterValue = 'all';
 
 // textContent only, never innerHTML, so item names can never run as code (protection 2)
 function el(tag, className, text) {
@@ -38,6 +40,8 @@ async function send(data) {
         window.location.href = 'login.php';
         return null;
     }
+    // A real action also resets the server's idle timer, so the countdown in idle.js restarts too
+    window.dispatchEvent(new Event('user-active'));
     return response.json();
 }
 
@@ -84,6 +88,11 @@ function buildCard(item, lowAt) {
         photo.appendChild(img);
     } else {
         photo.appendChild(el('span', 'no-photo', 'No photo'));
+    }
+    // A big stamp on the photo when every copy is out
+    if (item.available <= 0) {
+        photo.classList.add('is-out');
+        photo.appendChild(el('span', 'stamp', 'No Stock'));
     }
     card.appendChild(photo);
 
@@ -153,12 +162,31 @@ function buildCard(item, lowAt) {
     return card;
 }
 
+// The filter and the search work together: the search only looks inside the chosen filter
+function matchesFilter(item, mode, lowAt) {
+    if (mode === 'hidden') return item.hidden;
+    if (item.hidden && !showHidden.checked) return false;
+    if (mode === 'nostock') return item.available <= 0;
+    if (mode === 'low') return item.available > 0 && item.available <= lowAt;
+    if (mode === 'available') return item.available > lowAt;
+    return true;
+}
+
+function updateFilterCounts() {
+    chips.forEach((chip) => {
+        const count = latest.items.filter((item) => matchesFilter(item, chip.dataset.filter, latest.low_at)).length;
+        chip.querySelector('.chip-count').textContent = count;
+    });
+}
+
 function render() {
     if (!latest) return;
+    updateFilterCounts();
+
     // The search matches the start of the name and ignores capital letters
     const q = search.value.trim().toLowerCase();
     const list = latest.items.filter((item) =>
-        (showHidden.checked || !item.hidden) && item.name.toLowerCase().startsWith(q)
+        matchesFilter(item, filterValue, latest.low_at) && item.name.toLowerCase().startsWith(q)
     );
     grid.replaceChildren();
     list.forEach((item) => grid.appendChild(buildCard(item, latest.low_at)));
@@ -168,6 +196,8 @@ function render() {
         empty.textContent = 'No equipment yet. Click Add Item to list one.';
     } else if (q !== '') {
         empty.textContent = 'No items match your search.';
+    } else if (filterValue !== 'all') {
+        empty.textContent = 'No items in this filter.';
     } else {
         empty.textContent = 'All items are hidden. Tick "Show hidden items" to see them.';
     }
@@ -213,6 +243,14 @@ async function changeItem(action, id) {
 
 showHidden.addEventListener('change', render);
 search.addEventListener('input', render);
+
+chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+        filterValue = chip.dataset.filter;
+        chips.forEach((c) => c.classList.toggle('active', c === chip));
+        render();
+    });
+});
 
 document.addEventListener('click', () => {
     document.querySelectorAll('.dots-menu.open').forEach((m) => m.classList.remove('open'));
@@ -398,12 +436,3 @@ document.body.append(addModal, stockModal, deleteModal);
 
 load();
 setInterval(load, 5000);
-
-
-// Each real action also resets the server's idle timer, so the countdown here must restart too
-const sendOriginal = send;
-send = async function (data) {
-    const result = await sendOriginal(data);
-    if (result) window.dispatchEvent(new Event('user-active'));
-    return result;
-};

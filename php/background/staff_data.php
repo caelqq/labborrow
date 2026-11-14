@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../core/bootstrap.php';
 require __DIR__ . '/../auth/staff.php';
+require __DIR__ . '/../auth/staff_requests.php';
 
 // Not staff or not logged in: an empty reply, no data
 requireStaff(true);
@@ -10,6 +11,7 @@ header('Cache-Control: no-store');
 
 try {
     $db = getDb();
+    expireRequests($db);
     echo json_encode([
         'summary' => staffSummary($db),
         'items' => staffItems($db),

@@ -7,4 +7,5 @@
     <button type="button" class="menu-link active" data-section="items">Items</button>
     <button type="button" class="menu-link" data-section="approval">Approval</button>
     <button type="button" class="menu-link" data-section="log">Log</button>
+    <button type="button" class="menu-link" data-section="users">Users</button>
 </nav>
