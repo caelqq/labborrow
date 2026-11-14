@@ -121,3 +121,18 @@ CREATE TABLE borrow_requests (
 
 -- Soft delete: a deleted item stays in the table so old borrow records stay valid
 ALTER TABLE items ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE borrow_requests ADD COLUMN purpose VARCHAR(100) NULL AFTER quantity;
+ALTER TABLE borrow_requests CHANGE duration_hours duration_minutes INT NULL;
+UPDATE borrow_requests SET duration_minutes = duration_minutes * 60 WHERE duration_minutes IS NOT NULL;
+
+CREATE TABLE penalty_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id CHAR(9) NOT NULL,
+    amount INT NOT NULL,
+    balance_after INT NOT NULL,
+    paid_by CHAR(9) NOT NULL,
+    paid_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id_number),
+    FOREIGN KEY (paid_by) REFERENCES users(id_number)
+);
